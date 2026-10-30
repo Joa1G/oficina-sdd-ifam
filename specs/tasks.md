@@ -2,7 +2,7 @@
 
 > Como usar: rode `/4-implementar N` para cada tarefa, teste no navegador e faça commit.
 
-- [ ] 1. Estruturar a tela e o loop do jogo
+- [x] 1. Estruturar a tela e o loop do jogo
   - Criar a página principal, o canvas e o estilo base; configurar o estado inicial e o loop com `requestAnimationFrame`; exibir a tela inicial e o HUD básico.
   - **Arquivos:** `index.html`, `style.css`, `src/config.js`, `src/main.js`
   - **Como verificar:** abrir a página no navegador → a tela deve mostrar o nome do jogo, a instrução para pressionar Espaço e o canvas centralizado.
@@ -27,4 +27,5 @@
   - _Requisitos: 5.3, 5.4, 6.1, 6.2, 6.3, 6.4_
 
 ## Correções
+- [x] Bug: Espaço repetido reiniciava o jogo por auto-repeat do teclado | Causa: o tratamento de input aceitou eventos repetidos e disparava o início da partida mais de uma vez | _Requisitos: 1.2_
 
