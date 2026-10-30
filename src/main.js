@@ -12,7 +12,9 @@ const state = {
     left: false,
     right: false,
     space: false
-  }
+  },
+  items: [],
+  spawnTimer: 0
 };
 
 const player = {
@@ -25,6 +27,25 @@ const player = {
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
+}
+
+function randomBetween(min, max) {
+  return min + Math.random() * (max - min);
+}
+
+function spawnItem() {
+  const type = Math.random() < 0.5 ? 'coffee' : 'bug';
+  const size = 30;
+  const item = {
+    type,
+    x: randomBetween(18, CONFIG.canvasWidth - size - 18),
+    y: -size,
+    size,
+    speed: randomBetween(110, 170)
+  };
+
+  state.items.push(item);
+  state.spawnTimer = randomBetween(CONFIG.spawnIntervalMin, CONFIG.spawnIntervalMax);
 }
 
 function handleKeyChange(event, isPressed) {
@@ -54,6 +75,8 @@ function startGame() {
   state.phase = 'jogando';
   state.score = 0;
   state.lives = CONFIG.startLives;
+  state.items = [];
+  state.spawnTimer = 0.4;
   player.x = (CONFIG.canvasWidth - player.width) / 2;
 }
 
@@ -65,6 +88,17 @@ function update(dt) {
   const direction = Number(state.keys.right) - Number(state.keys.left);
   player.x += direction * player.speed * dt;
   player.x = clamp(player.x, 0, CONFIG.canvasWidth - player.width);
+
+  state.spawnTimer -= dt;
+  if (state.spawnTimer <= 0) {
+    spawnItem();
+  }
+
+  state.items.forEach((item) => {
+    item.y += item.speed * dt;
+  });
+
+  state.items = state.items.filter((item) => item.y < CONFIG.canvasHeight + item.size);
 }
 
 function drawBackground() {
@@ -86,6 +120,16 @@ function drawPlayer() {
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillText('🧑‍💻', player.x, player.y + player.height / 2);
+}
+
+function drawItems() {
+  state.items.forEach((item) => {
+    const icon = item.type === 'coffee' ? '☕' : '🐛';
+    ctx.font = '28px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(icon, item.x + item.size / 2, item.y + item.size / 2);
+  });
 }
 
 function drawHud() {
@@ -116,6 +160,7 @@ function draw() {
   }
 
   drawHud();
+  drawItems();
   drawPlayer();
 }
 
