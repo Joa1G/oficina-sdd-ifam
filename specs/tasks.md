@@ -1,3 +1,4 @@
+ conferir as telas inicial, de jogo e final em uma janela desktop e em uma janela estreita; verificar os dados do HUD, a legibilidade das instruções e a ausência de rolagem horizontal ou sobreposição com o dev e os itens.
 # Plano de implementação: Chuva de Bugs
 
 > Como usar: rode `/4-implementar N` para cada tarefa, teste no navegador e faça commit.
@@ -25,8 +26,28 @@
   - **Arquivos:** `src/storage.js`, `src/game.js`, `src/main.js`, `style.css`
   - **Como verificar:** jogar até perder, observar a tela final → a pontuação e o recorde devem aparecer; recarregar a página → o recorde anterior deve continuar salvo; pressionar Espaço novamente → a partida deve reiniciar do zero, sem perder o recorde salvo.
   - _Requisitos: 5.3, 5.4, 6.1, 6.2, 6.3, 6.4_
+- _Requisitos: 5.3, 5.4, 6.1, 6.2, 6.3, 6.4_
+
+- [ ] 5. Aumentar a frequência inicial e suavizar a dificuldade
+  - Ajustar os intervalos de geração para haver mais itens desde o início e reduzir a taxa de crescimento da dificuldade ao longo da partida.
+  - **Arquivos:** `src/config.js`, `src/game.js`
+  - **Como verificar:** iniciar uma partida e observar que os itens aparecem com maior frequência que antes; continuar jogando e confirmar que a velocidade de queda e a frequência aumentam gradualmente, sem uma aceleração abrupta.
+  - _Requisitos: 4.1, 4.2, 4.3, 7.1_
+
+- [ ] 6. Alterar a velocidade do dev conforme os cafés
+  - Aumentar a velocidade do personagem ao coletar cafés e reduzi-la para cada café perdido, mantendo-a entre os limites configurados.
+  - **Arquivos:** `src/config.js`, `src/game.js`
+  - **Como verificar:** coletar cafés e comparar o movimento do dev; deixar cafés caírem e observar a redução; repetir até os limites e confirmar que a velocidade não os ultrapassa.
+  - _Requisitos: 7.2, 7.3, 7.4_
+
+- [ ] 7. Aprimorar o HUD e o layout responsivo
+  - Reorganizar a hierarquia visual das telas e do HUD para mostrar os dados da partida sem cobrir a área de ação e adaptar o layout a janelas estreitas.
+  - **Arquivos:** `index.html`, `style.css`, `src/game.js`
+  - **Como verificar:** conferir as telas inicial, de jogo e final em uma janela desktop e em uma janela estreita; verificar os dados do HUD, a legibilidade e a ausência de rolagem horizontal ou sobreposição com o dev e os itens.
+  - _Requisitos: 8.1, 8.2, 8.3_
 
 ## Correções
 - [x] Bug: Espaço repetido reiniciava o jogo por auto-repeat do teclado | Causa: o tratamento de input aceitou eventos repetidos e disparava o início da partida mais de uma vez | _Requisitos: 1.2_
 - [x] Bug: itens passavam direto pelo personagem | Causa: o jogo não calculava colisão entre o retângulo do dev e o retângulo dos itens, então a remoção só acontecia quando saíam da tela | _Requisitos: 3.2, 3.3_
+- [x] Bug: itens não estavam caindo | Causa: a velocidade dos itens podia ficar inválida ou nula em alguns ciclos, e o ganho de queda foi calculado sem validar a velocidade antes de mover cada item | _Requisitos: 3.1, 4.2_
 

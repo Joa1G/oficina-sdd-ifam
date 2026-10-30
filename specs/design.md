@@ -1,7 +1,7 @@
 # Design: Chuva de Bugs
 
 ## Visão geral
-O jogo será uma página simples com um canvas central e um estado mínimo de três telas: início, jogando e fim. A lógica principal ficará em um módulo de jogo, enquanto o teclado e o armazenamento local ficam separados para facilitar manutenção e permitir testes simples. O fluxo será baseado em um loop de animação com delta time em segundos, usando o Canvas 2D para desenhar o dev, os itens e os textos. A dificuldade cresce de forma contínua e o recorde fica salvo no navegador por meio de localStorage.
+O jogo será uma página simples com um canvas central e um estado mínimo de três telas: início, jogando e fim. A lógica principal ficará em um módulo de jogo, enquanto o teclado e o armazenamento local ficam separados para facilitar manutenção e permitir testes simples. O fluxo será baseado em um loop de animação com delta time em segundos, usando o Canvas 2D para desenhar o dev, os itens e os textos. A geração inicial terá intervalos menores, e o aumento gradual da dificuldade será mais lento. Coletar ou perder cafés alterará a velocidade do dev, respeitando limites configurados. O HUD e as telas de estado terão hierarquia visual clara e se adaptarão a janelas estreitas. O recorde fica salvo no navegador por meio de localStorage.
 
 ## Decisões técnicas
 | Decisão | Escolha | Por quê |
@@ -16,6 +16,8 @@ O jogo será uma página simples com um canvas central e um estado mínimo de tr
 ```mermaid
 flowchart LR
     A["index.html"] --> B["src/main.js"]
+    A --> H["style.css"]
+    A --> G["Canvas 2D"]
     B --> C["src/game.js"]
     B --> D["src/input.js"]
     B --> E["src/storage.js"]
@@ -24,6 +26,7 @@ flowchart LR
     D --> C
     E --> C
     F --> C
+    H --> G
 ```
 
 ## Estrutura de arquivos
@@ -47,19 +50,19 @@ flowchart LR
 - **Responsabilidade:** Montar a área do jogo, o canvas e a marcação do nome do jogo.
 - **Estado:** Sem estado de jogo; somente a estrutura visual da página.
 - **Funções principais:** `initGame()`: chama a inicialização do módulo principal; `renderHud()`: opcional em HTML, se houver textos na página.
-- **Atende:** 1.1, 1.3, 5.3
+- **Atende:** 1.1, 1.3, 5.3, 8.2, 8.3
 
 ### `style.css`: Estilo visual
-- **Responsabilidade:** Centralizar o canvas, definir fundo escuro e posicionar textos de HUD.
+- **Responsabilidade:** Organizar a hierarquia visual do título, da área de jogo e do HUD, além de adaptar o layout a janelas estreitas.
 - **Estado:** Propriedades visuais estáticas, sem variáveis de jogo.
-- **Funções principais:** `body {}`: define a página; `.game-shell {}`: responsividade da área do jogo.
-- **Atende:** 1.1, 1.3, 5.3
+- **Funções principais:** `body {}`: define a página; `.game-shell {}`: organiza o conteúdo; `canvas {}`: mantém a área de jogo legível e responsiva.
+- **Atende:** 1.1, 1.3, 5.3, 8.2, 8.3
 
 ### `src/config.js`: Configuração central
 - **Responsabilidade:** Guardar as constantes ajustáveis do jogo em um único objeto `CONFIG`.
 - **Estado:** Apenas valores fixos e exportados.
 - **Funções principais:** `createConfig()`: retorna o objeto de configuração; `export const CONFIG = { ... }`: centraliza os parâmetros.
-- **Atende:** 2.3, 3.1, 4.1, 4.2, 5.1
+- **Atende:** 2.3, 3.1, 4.1, 4.2, 5.1, 7.1, 7.2, 7.3, 7.4
 
 ### `src/input.js`: Leitura do teclado
 - **Responsabilidade:** Mapear teclas de movimento e Espaço para o estado do jogo.
@@ -68,10 +71,10 @@ flowchart LR
 - **Atende:** 1.2, 2.1, 2.2, 2.4, 5.4
 
 ### `src/game.js`: Lógica principal do jogo
-- **Responsabilidade:** Controlar estados, gerar itens, mover o personagem, processar colisões, atualizar pontuação e vidas e desenhar tudo.
-- **Estado:** `state`, `player`, `items`, `score`, `lives`, `record`, `difficultyTimer`.
+- **Responsabilidade:** Controlar estados, gerar itens, mover o personagem, processar colisões, atualizar pontuação, vidas e velocidade do dev e desenhar a área de jogo e seu HUD.
+- **Estado:** `state`, `player.speed`, `items`, `score`, `lives`, `record`, `difficultyTimer`.
 - **Funções principais:** `createGame()`: define o estado inicial; `update(dt)`: avançar a simulação; `draw()`: renderizar; `spawnItem()`: criar café ou bug; `handleCollisions()`: resolver coleta e dano; `endGame()`: transição para tela final.
-- **Atende:** 1.2, 1.3, 2.1, 2.2, 2.3, 3.1, 3.2, 3.3, 3.4, 4.1, 4.2, 4.3, 5.1, 5.2, 5.3, 5.4, 6.1, 6.3, 6.4
+- **Atende:** 1.2, 1.3, 2.1, 2.2, 2.3, 3.1, 3.2, 3.3, 3.4, 4.1, 4.2, 4.3, 5.1, 5.2, 5.3, 5.4, 6.1, 6.3, 6.4, 7.1, 7.2, 7.3, 7.4, 8.1, 8.2
 
 ### `src/storage.js`: Persistência local
 - **Responsabilidade:** Salvar e recuperar o recorde em `localStorage`.
@@ -91,13 +94,21 @@ flowchart LR
 | `canvasWidth` | 640 | Largura da área de jogo | 2.3 |
 | `canvasHeight` | 480 | Altura da área de jogo | 2.3, 3.4 |
 | `playerSpeed` | 320 | Velocidade horizontal do dev | 2.1, 2.2 |
+| `playerSpeedMin` | 200 | Limite mínimo de velocidade do dev | 7.4 |
+| `playerSpeedMax` | 420 | Limite máximo de velocidade do dev | 7.2, 7.4 |
+| `coffeeSpeedIncrease` | 20 | Aumento de velocidade ao coletar café | 7.2 |
+| `missedCoffeeSpeedDecrease` | 30 | Redução de velocidade por café perdido | 7.3 |
 | `startLives` | 3 | Quantidade inicial de vidas | 5.1 |
 | `coffeePoints` | 1 | Pontos ganhos por café | 3.2 |
 | `bugDamage` | 1 | Dano causado por bug | 3.3, 5.2 |
-| `spawnIntervalMin` | 0.7 | Intervalo mínimo entre itens | 4.1 |
-| `spawnIntervalMax` | 1.7 | Intervalo máximo inicial entre itens | 4.1 |
-| `baseFallSpeed` | 140 | Velocidade inicial de queda | 4.2 |
-| `difficultyRamp` | 0.15 | Aceleração da dificuldade por segundo | 4.3 |
+| `itemSpawnStart` | 0.4 | Espera inicial antes do primeiro item | 3.1 |
+| `spawnIntervalMin` | 0.5 | Menor intervalo entre itens | 4.1, 7.1 |
+| `spawnIntervalMax` | 1.1 | Maior intervalo inicial entre itens | 4.1, 7.1 |
+| `difficultySpawnReduction` | 0.01 | Redução gradual do intervalo de geração ao longo do tempo | 4.1 |
+| `itemSpeedMin` | 110 | Velocidade mínima inicial de queda | 4.2 |
+| `itemSpeedMax` | 170 | Velocidade máxima inicial de queda | 4.2 |
+| `difficultySpeedBoost` | 4 | Aumento gradual da velocidade de queda pelo tempo | 4.2, 4.3 |
+| `difficultyGrowth` | 0.04 | Fator de crescimento gradual da dificuldade | 4.3 |
 | `recordStorageKey` | "bugRainRecord" | Nome da chave em localStorage | 6.1, 6.2 |
 
 ## Fluxo
@@ -115,16 +126,21 @@ Passo a passo do loop principal:
 2. Quando a tecla Espaço é pressionada, `input.js` sinaliza um início de partida e `game.js` muda de `Inicio` para `Jogando`.
 3. No estado de jogo, `game.js` gera itens aleatórios no topo da tela, move o dev conforme as setas/A-D e faz a queda dos cafés e bugs em tempo real.
 4. O sistema verifica colisões com o dev, aplica pontos ou dano e remove objetivos que atingem o chão sem efeito.
-5. A dificuldade aumenta com o tempo por meio do aumento de frequência e velocidade de queda, usando `CONFIG` para controlar a taxa.
-6. Quando o jogador perde a última vida, a partida entra em `Fim`, exibe a pontuação final e o recorde salvo e aguarda outra tecla Espaço para reiniciar.
+5. A frequência inicial de geração é maior que na configuração anterior; durante a partida, os intervalos diminuem e a velocidade de queda aumenta gradualmente, com taxas controladas por `CONFIG`.
+6. Ao coletar um café, o dev ganha velocidade; ao deixar um café cair, perde velocidade. Em ambos os casos, a velocidade permanece entre os limites de `CONFIG`.
+7. Quando o jogador perde a última vida, a partida entra em `Fim`, exibe a pontuação final e o recorde salvo e aguarda outra tecla Espaço para reiniciar.
 
 ## Propriedades de corretude
 - Para qualquer quadro, o dev fica dentro dos limites horizontais da área de jogo. (Valida: 2.3)
+- Ao coletar um café, a velocidade do dev aumenta sem ultrapassar o limite máximo; ao perder um café, diminui sem ficar abaixo do limite mínimo. (Valida: 7.2, 7.3, 7.4)
+- Durante a partida, a geração respeita os intervalos configurados e começa com frequência maior que a configuração anterior. (Valida: 7.1)
 - Para qualquer item gerado, ele cai apenas do topo e não desaparece sem regra definida. (Valida: 3.1, 3.4)
 - Para qualquer colisão entre café e dev, o sistema soma exatamente 1 ponto e remove o item. (Valida: 3.2)
 - Para qualquer colisão entre bug e dev, o sistema reduz exatamente 1 vida e remove o item. (Valida: 3.3)
 - Para qualquer pontuação maior que o recorde salvo, o recorde local é atualizado e persistido. (Valida: 6.1, 6.2)
 - Para qualquer estado de jogo, a dificuldade nunca volta para trás enquanto a partida continua ativa. (Valida: 4.3)
+- Durante a partida, o HUD mostra pontuação, recorde, vidas e velocidade sem encobrir o dev ou os itens. (Valida: 8.1)
+- Em janelas estreitas, a área de jogo e seus textos permanecem visíveis sem rolagem horizontal. (Valida: 8.3)
 
 ## Casos limite
 - O jogador pressiona teclas de movimento antes da partida começar: o sistema ignora movimento e mantém o estado em início.

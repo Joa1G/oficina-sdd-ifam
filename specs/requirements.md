@@ -64,6 +64,40 @@ Este projeto é um jogo de navegador em que o jogador controla um dev que coleta
 - **6.3** QUANDO a partida for reiniciada, O SISTEMA DEVE manter o recorde anterior e comparar a nova pontuação com ele.
 - **6.4** QUANDO a pontuação não ultrapassar o recorde, O SISTEMA DEVE manter o recorde local sem alteração.
 
+### Requisito 7: Ajustar o ritmo e a velocidade do dev
+**História de usuário:** Como jogador, quero encontrar mais itens durante a
+partida e sentir que coletar ou perder cafés afeta o movimento do dev, para ter
+mais controle sobre meu desempenho.
+
+**Critérios de aceitação**
+- **7.1** QUANDO a partida estiver em andamento, O SISTEMA DEVE gerar itens com
+intervalos configurados para aumentar a frequência inicial em relação à
+configuração anterior.
+- **7.2** QUANDO o dev coletar um café, O SISTEMA DEVE aumentar sua velocidade de
+movimento até o limite máximo definido.
+- **7.3** QUANDO um café alcançar o chão sem ser coletado, O SISTEMA DEVE reduzir
+a velocidade de movimento do dev.
+- **7.4** SE um aumento ou uma redução ultrapassar os limites de velocidade,
+ENTÃO O SISTEMA DEVE manter a velocidade dentro dos limites mínimo e máximo
+definidos.
+
+### Requisito 8: Apresentar uma interface clara e responsiva
+**História de usuário:** Como jogador, quero visualizar as informações da
+partida com clareza em diferentes tamanhos de tela, para acompanhar o jogo sem
+perder de vista a área de ação.
+
+**Critérios de aceitação**
+- **8.1** ENQUANTO a partida estiver em andamento, O SISTEMA DEVE exibir
+pontuação, recorde, vidas e velocidade atual do dev em uma área de HUD que não
+obstrua os itens nem o personagem.
+- **8.2** QUANDO a tela inicial ou a tela de fim de jogo for exibida, O SISTEMA
+DEVE apresentar o título ou resultado da partida e a ação disponível com
+hierarquia visual clara.
+- **8.3** QUANDO a página for exibida em uma janela estreita, O SISTEMA DEVE
+adaptar a área de jogo e manter textos e controles visíveis sem rolagem
+ adaptar a área de jogo e manter textos e instruções visíveis sem rolagem
+horizontal.
+
 ## Fora do escopo
 - Som, música e efeitos de áudio.
 - Multiplayer ou modo cooperativo.
