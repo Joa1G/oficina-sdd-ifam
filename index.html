@@ -7,9 +7,12 @@
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <main class="game-shell">
-      <h1>Chuva de Bugs</h1>
-      <canvas id="gameCanvas" width="640" height="480" aria-label="Tela do jogo"></canvas>
+    <main class="game-shell" aria-labelledby="gameTitle">
+      <header class="game-header">
+        <p class="game-kicker">Desafio de sobrevivência</p>
+        <h1 id="gameTitle">Chuva de Bugs</h1>
+      </header>
+      <canvas id="gameCanvas" width="640" height="480" aria-label="Área de jogo de Chuva de Bugs"></canvas>
     </main>
 
     <script type="module" src="./src/main.js"></script>

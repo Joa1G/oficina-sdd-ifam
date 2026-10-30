@@ -28,16 +28,19 @@ function createPlayer() {
 
 function spawnItem(game) {
   const type = Math.random() < 0.5 ? 'coffee' : 'bug';
+  const baseSpeed = randomBetween(CONFIG.itemSpeedMin, CONFIG.itemSpeedMax);
   const item = {
     type,
     x: randomBetween(CONFIG.itemPadding, CONFIG.canvasWidth - CONFIG.itemSize - CONFIG.itemPadding),
-    y: -CONFIG.itemSize,
+    y: CONFIG.hudHeight,
     size: CONFIG.itemSize,
-    speed: randomBetween(CONFIG.itemSpeedMin, CONFIG.itemSpeedMax) + game.elapsed * CONFIG.difficultySpeedBoost
+    speed: Math.max(baseSpeed, 1) + game.elapsed * CONFIG.difficultySpeedBoost
   };
 
   game.items.push(item);
-  game.spawnTimer = randomBetween(CONFIG.spawnIntervalMin, CONFIG.spawnIntervalMax);
+  const nextInterval = randomBetween(CONFIG.spawnIntervalMin, CONFIG.spawnIntervalMax) -
+    game.elapsed * CONFIG.difficultySpawnReduction;
+  game.spawnTimer = Math.max(CONFIG.spawnIntervalMin, nextInterval);
 }
 
 export function createGame() {
@@ -88,7 +91,8 @@ export function updateGame(game, dt) {
   const difficultyFactor = 1 + game.elapsed * CONFIG.difficultyGrowth;
 
   game.items.forEach((item) => {
-    item.y += item.speed * difficultyFactor * dt;
+    const speed = Number.isFinite(item.speed) && item.speed > 0 ? item.speed : CONFIG.itemSpeedMin;
+    item.y += speed * difficultyFactor * dt;
   });
 
   const playerRect = {
@@ -109,6 +113,10 @@ export function updateGame(game, dt) {
     if (intersects(playerRect, itemRect)) {
       if (item.type === 'coffee') {
         game.score += CONFIG.coffeePoints;
+        game.player.speed = Math.min(
+          CONFIG.playerSpeedMax,
+          game.player.speed + CONFIG.coffeeSpeedIncrease
+        );
         game.record = updateRecordIfNeeded(game.score);
       } else {
         game.lives -= CONFIG.bugDamage;
@@ -124,6 +132,12 @@ export function updateGame(game, dt) {
     }
 
     if (item.y >= CONFIG.canvasHeight + item.size) {
+      if (item.type === 'coffee') {
+        game.player.speed = Math.max(
+          CONFIG.playerSpeedMin,
+          game.player.speed - CONFIG.missedCoffeeSpeedDecrease
+        );
+      }
       return false;
     }
 
@@ -132,14 +146,17 @@ export function updateGame(game, dt) {
 }
 
 function drawBackground(ctx, canvas) {
-  ctx.fillStyle = '#0d1324';
+  ctx.fillStyle = '#121a18';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.strokeStyle = '#2a3858';
-  ctx.lineWidth = 5;
+  ctx.fillStyle = '#18221e';
+  ctx.fillRect(0, 0, canvas.width, CONFIG.hudHeight);
+
+  ctx.strokeStyle = '#405248';
+  ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(24, 48);
-  ctx.lineTo(canvas.width - 24, 48);
+  ctx.moveTo(0, CONFIG.hudHeight);
+  ctx.lineTo(canvas.width, CONFIG.hudHeight);
   ctx.moveTo(24, canvas.height - 20);
   ctx.lineTo(canvas.width - 24, canvas.height - 20);
   ctx.stroke();
@@ -163,12 +180,23 @@ function drawItems(ctx, game) {
 }
 
 function drawHud(ctx, game) {
-  ctx.font = '24px sans-serif';
   ctx.textAlign = 'left';
-  ctx.fillStyle = '#e7ecff';
-  ctx.fillText(`Pontos: ${game.score}`, 24, 28);
-  ctx.fillText(`Recorde: ${game.record}`, 24, 56);
-  ctx.fillText(`Vidas: ${'❤️'.repeat(Math.max(game.lives, 0))}`, 24, 84);
+  const stats = [
+    { label: 'PONTOS', value: String(game.score) },
+    { label: 'RECORDE', value: String(game.record) },
+    { label: 'VIDAS', value: `${game.lives} ${'♥'.repeat(Math.max(game.lives, 0))}` },
+    { label: 'RITMO', value: `${Math.round(game.player.speed)} px/s` }
+  ];
+
+  stats.forEach((stat, index) => {
+    const x = 24 + index * 150;
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillStyle = '#a9b8a5';
+    ctx.fillText(stat.label, x, 34);
+    ctx.font = 'bold 20px sans-serif';
+    ctx.fillStyle = index === 3 ? '#d5a35b' : '#f2f4e9';
+    ctx.fillText(stat.value, x, 66);
+  });
 }
 
 function drawStartScreen(ctx, canvas) {
@@ -178,7 +206,7 @@ function drawStartScreen(ctx, canvas) {
   ctx.fillText('Chuva de Bugs', canvas.width / 2, canvas.height / 2 - 30);
 
   ctx.font = '24px Arial';
-  ctx.fillStyle = '#7dd3fc';
+  ctx.fillStyle = '#d5a35b';
   ctx.fillText('Pressione Espaço para começar', canvas.width / 2, canvas.height / 2 + 30);
 }
 
@@ -189,7 +217,7 @@ function drawEndScreen(ctx, canvas, game) {
   ctx.fillText('Fim de jogo', canvas.width / 2, canvas.height / 2 - 60);
 
   ctx.font = '24px Arial';
-  ctx.fillStyle = '#7dd3fc';
+  ctx.fillStyle = '#d5a35b';
   ctx.fillText(`Pontuação: ${game.score}`, canvas.width / 2, canvas.height / 2 + 0);
   ctx.fillText(`Recorde: ${game.record}`, canvas.width / 2, canvas.height / 2 + 40);
   ctx.fillText('Pressione Espaço para jogar de novo', canvas.width / 2, canvas.height / 2 + 90);

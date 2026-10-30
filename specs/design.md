@@ -93,6 +93,7 @@ flowchart LR
 |---|---:|---|---|
 | `canvasWidth` | 640 | Largura da área de jogo | 2.3 |
 | `canvasHeight` | 480 | Altura da área de jogo | 2.3, 3.4 |
+| `hudHeight` | 96 | Altura reservada para o HUD, fora da área de queda | 8.1 |
 | `playerSpeed` | 320 | Velocidade horizontal do dev | 2.1, 2.2 |
 | `playerSpeedMin` | 200 | Limite mínimo de velocidade do dev | 7.4 |
 | `playerSpeedMax` | 420 | Limite máximo de velocidade do dev | 7.2, 7.4 |
