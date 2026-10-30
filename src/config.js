@@ -3,11 +3,20 @@ export const CONFIG = {
   canvasHeight: 480,
   playerWidth: 52,
   playerHeight: 40,
+  playerYOffset: 18,
   playerSpeed: 320,
   startLives: 3,
+  itemSize: 30,
+  itemPadding: 18,
+  itemSpawnStart: 0.4,
   spawnIntervalMin: 0.7,
   spawnIntervalMax: 1.7,
-  baseFallSpeed: 140,
-  difficultyRamp: 0.15,
-  recordStorageKey: "bugRainRecord"
+  itemSpeedMin: 110,
+  itemSpeedMax: 170,
+  itemSpeedBoost: 15,
+  coffeePoints: 1,
+  bugDamage: 1,
+  difficultyGrowth: 0.15,
+  maxFrameDelta: 0.033,
+  recordStorageKey: 'bugRainRecord'
 };
