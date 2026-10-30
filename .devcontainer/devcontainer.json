@@ -1,0 +1,28 @@
+{
+  "name": "Oficina SDD com GitHub Copilot",
+  // Imagem padrão do Codespaces (já vem com Node e Python e costuma estar em cache, então abre rápido)
+  "image": "mcr.microsoft.com/devcontainers/universal:latest",
+  // Quando o aluno sobe o servidor do jogo na porta 8080, o Codespaces abre o jogo em uma aba nova
+  "portsAttributes": {
+    "8080": {
+      "label": "Jogo",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "customizations": {
+    "codespaces": {
+      "openFiles": ["IDEIA.md"]
+    },
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot-chat",
+        // Desenha os diagramas Mermaid do design.md no preview de Markdown
+        "bierner.markdown-mermaid"
+      ],
+      "settings": {
+        // O servidor só enxerga arquivos salvos
+        "files.autoSave": "afterDelay"
+      }
+    }
+  }
+}
